@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rimi.cs.dao.UserMapper">
+  <resultMap id="BaseResultMap" type="com.rimi.cs.pojo.User">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="userCode" jdbcType="VARCHAR" property="usercode" />
+    <result column="userName" jdbcType="VARCHAR" property="username" />
+    <result column="userPassword" jdbcType="VARCHAR" property="userpassword" />
+    <result column="gender" jdbcType="INTEGER" property="gender" />
+    <result column="birthday" jdbcType="DATE" property="birthday" />
+    <result column="phone" jdbcType="VARCHAR" property="phone" />
+    <result column="address" jdbcType="VARCHAR" property="address" />
+    <result column="userRole" jdbcType="BIGINT" property="userrole" />
+    <result column="createdBy" jdbcType="BIGINT" property="createdby" />
+    <result column="creationDate" jdbcType="TIMESTAMP" property="creationdate" />
+    <result column="modifyBy" jdbcType="BIGINT" property="modifyby" />
+    <result column="modifyDate" jdbcType="TIMESTAMP" property="modifydate" />
+  </resultMap>
+  <resultMap id="extendBaseResultMap" type="com.rimi.cs.pojo.User" extends="BaseResultMap">
+    <association property="role" javaType="com.rimi.cs.pojo.Role" columnPrefix="r_">
+      <id column="id" jdbcType="BIGINT" property="id" />
+      <result column="roleCode" jdbcType="VARCHAR" property="rolecode" />
+      <result column="roleName" jdbcType="VARCHAR" property="rolename" />
+    </association>
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from smbms_user
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.rimi.cs.pojo.User">
+    insert into smbms_user (id, userCode, userName, 
+      userPassword, gender, birthday, 
+      phone, address, userRole, 
+      createdBy, creationDate, modifyBy, 
+      modifyDate)
+    values (#{id,jdbcType=BIGINT}, #{usercode,jdbcType=VARCHAR}, #{username,jdbcType=VARCHAR}, 
+      #{userpassword,jdbcType=VARCHAR}, #{gender,jdbcType=INTEGER}, #{birthday,jdbcType=DATE}, 
+      #{phone,jdbcType=VARCHAR}, #{address,jdbcType=VARCHAR}, #{userrole,jdbcType=BIGINT}, 
+      #{createdby,jdbcType=BIGINT}, #{creationdate,jdbcType=TIMESTAMP}, #{modifyby,jdbcType=BIGINT}, 
+      #{modifydate,jdbcType=TIMESTAMP})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com.rimi.cs.pojo.User">
+    update smbms_user
+    set userCode = #{usercode,jdbcType=VARCHAR},
+      userName = #{username,jdbcType=VARCHAR},
+      userPassword = #{userpassword,jdbcType=VARCHAR},
+      gender = #{gender,jdbcType=INTEGER},
+      birthday = #{birthday,jdbcType=DATE},
+      phone = #{phone,jdbcType=VARCHAR},
+      address = #{address,jdbcType=VARCHAR},
+      userRole = #{userrole,jdbcType=BIGINT},
+      createdBy = #{createdby,jdbcType=BIGINT},
+      creationDate = #{creationdate,jdbcType=TIMESTAMP},
+      modifyBy = #{modifyby,jdbcType=BIGINT},
+      modifyDate = #{modifydate,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select id, userCode, userName, userPassword, gender, birthday, phone, address, userRole, 
+    createdBy, creationDate, modifyBy, modifyDate
+    from smbms_user
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select id, userCode, userName, userPassword, gender, birthday, phone, address, userRole, 
+    createdBy, creationDate, modifyBy, modifyDate
+    from smbms_user
+  </select>
+  <select id="selectByUserCode" resultMap="BaseResultMap">
+    select * from smbms_user where userCode=#{userCode};
+  </select>
+
+  <select id="select" resultMap="extendBaseResultMap">
+      select
+        u.*,
+        r.id       as r_id,
+        r.roleCode as r_roleCode,
+        r.roleName as r_roleName
+      from smbms_user u
+        join smbms_role r on u.userRole = r.id
+  </select>
+  <select id="selectByNameAndRoleId" resultMap="extendBaseResultMap">
+    select
+    u.*,
+    r.id       as r_id,
+    r.roleCode as r_roleCode,
+    r.roleName as r_roleName
+    from smbms_user u
+    join smbms_role r on u.userRole = r.id
+    <where>
+      <if test="queryname != null and queryname != ''">
+        u.userName like concat('%',#{queryname},'%')
+      </if>
+      <if test="queryUserRole != null and queryUserRole != ''">
+       and  r.id = #{queryUserRole}
+      </if>
+    </where>
+  </select>
+
+</mapper>
